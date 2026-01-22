@@ -39,40 +39,44 @@ Include:
           contents: [
             {
               role: "user",
-              parts: [{ text: prompt }]
-            }
-          ]
-        })
-      }
+              parts: [{ text: prompt }],
+            },
+          ],
+        }),
+      },
     );
 
-    const data = await response.json();
+    if (!res.ok) {
+  throw new Error(`API error ${res.status}`);
+}
+
+const data = await res.json();
+
 
     console.log("Gemini RAW response:", JSON.stringify(data, null, 2));
 
     if (data.error) {
       return res.status(500).json({
         error: "Gemini API Error",
-        details: data.error
+        details: data.error,
       });
     }
 
-    const text =
-      data.candidates?.[0]?.content?.parts?.[0]?.text;
+    const text = data.candidates?.[0]?.content?.parts?.[0]?.text;
 
     if (!text) {
       return res.status(500).json({
         error: "Empty Gemini response",
-        details: data
+        details: data,
       });
     }
 
     res.json({ itinerary: text });
+ } catch (err) {
+  console.error("ERROR DETAILS:", err);
+  alert(err.message || "Something went wrong");
+}
 
-  } catch (err) {
-    console.error("Backend crash:", err);
-    res.status(500).json({ error: "Server crashed" });
-  }
 });
 
 const PORT = process.env.PORT || 5000;
