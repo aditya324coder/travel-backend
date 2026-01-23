@@ -8,7 +8,7 @@ st.title("AI Travel Planner for Students")
 st.write("Smart, budget-friendly trip planning powered by AI")
 
 
-api_key = os.environ.get("GEMINI_API_KEY", "AIzaSyDbW-z5tFqwXEzgzMLXXeB1YxUxynVH1CU")
+api_key = os.environ.get("GEMINI_API_KEY")
 
 with st.form("trip_form"):
     col1, col2, col3 = st.columns(3)
@@ -149,14 +149,19 @@ if itinerary:
     if locations:
         st.subheader("Map Locations")
         try:
-            from streamlit_folium import st_folium
             import folium
+            from streamlit_folium import st_folium
             icon_url = "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png"
             icon = folium.CustomIcon(icon_url, icon_size=(28, 40), icon_anchor=(14, 40))
             m = folium.Map(location=[locations[0]['lat'], locations[0]['lng']], zoom_start=10)
             for loc in locations:
                 folium.Marker([loc['lat'], loc['lng']], popup=loc['place'], icon=icon).add_to(m)
-            st_folium(m, width=700, height=400)
+            map_result = st_folium(m, width=700, height=400, returned_objects=["last_object"])
+            if map_result is None:
+                st.warning("Map could not be rendered. Please check your browser or Streamlit logs.")
         except ImportError:
             st.info("Install streamlit-folium to see map. Showing coordinates table instead.")
+            st.table([{**l, 'lat': f"{l['lat']:.5f}", 'lng': f"{l['lng']:.5f}"} for l in locations])
+        except Exception as e:
+            st.error(f"Map rendering error: {e}")
             st.table([{**l, 'lat': f"{l['lat']:.5f}", 'lng': f"{l['lng']:.5f}"} for l in locations])
