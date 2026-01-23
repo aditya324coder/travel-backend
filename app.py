@@ -27,9 +27,9 @@ if 'itinerary' not in st.session_state:
 
 if submitted:
     if not api_key:
-        st.error("No Gemini API Key found in code or environment variable.")
+        st.error("No AI Backend found in code or environment variable.")
     else:
-        with st.spinner("Generating itinerary via Gemini API..."):
+        with st.spinner("Generating itinerary ..."):
             prompt = f"""
 You are an AI travel planner for students.
 Generate a smart, budget-friendly travel itinerary STRICTLY in the structured format below.
